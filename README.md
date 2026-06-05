@@ -1,9 +1,18 @@
 # stayease
 StayEase - Book your hotel now
 
-FrontEnd Setup:
-cd stayease-app/
-npm install
+# Frontend Setup
 
-Start Local Server:
+```
+cd stayease-app
+npm install
 npm run dev
+```
+
+Frontend runs on:
+
+```
+http://localhost:5173
+```
+
+---
