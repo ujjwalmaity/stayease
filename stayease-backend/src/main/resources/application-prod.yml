@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/stayease}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:postgres}
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: never
+app:
+  jwt:
+    secret: ${JWT_SECRET}

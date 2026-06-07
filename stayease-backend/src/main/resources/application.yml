@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: stay-ease
+  profiles:
+    default: dev
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.format_sql: true
+server:
+  port: ${SERVER_PORT:8080}
+app:
+  jwt:
+    secret: ${JWT_SECRET:ZmFrZS1zZWNyZXQta2V5LWZvci1zdGF5ZWFzZS1jaGFuZ2UtbWUtaW4tcHJvZHVjdGlvbi0xMjM0NTY3OA==}
+    expiration-ms: 86400000
+  cors:
+    allowed-origins: http://localhost:5173,http://localhost:3000
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
