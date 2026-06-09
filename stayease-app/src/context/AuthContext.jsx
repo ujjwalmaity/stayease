@@ -15,29 +15,35 @@ export const AuthProvider = ({ children }) => {
     localStorage.getItem("token"),
   );
   const [role, setRole] = useState(localStorage.getItem("role"));
-  const login = (jwt, roleName) => {
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const login = (jwt, roleName, userId) => {
     localStorage.setItem("token", jwt);
     localStorage.setItem("role", roleName);
+    localStorage.setItem("userId", userId); // Store userId in localStorage
     setToken(jwt);
     setRole(roleName);
+    setUserId(userId);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("userId"); // Remove userId from localStorage
     setToken(null);
     setRole(null);
+    setUserId(null);
   };
 
   const value = useMemo(
     () => ({
       token,
       role,
+      userId,
       login,
       logout,
       isAuthenticated: !!token,
     }),
-    [token, role],
+    [token, role, userId],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

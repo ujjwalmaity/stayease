@@ -16,7 +16,7 @@ export default function LoginPage() {
   const onSubmit = async (data) => {
     try {
       const response = await login(data);
-      auth.login(response.token, response.role);
+      auth.login(response.token, response.role, response.userId);
       toast.success("Login successful");
       navigate("/");
     } catch {

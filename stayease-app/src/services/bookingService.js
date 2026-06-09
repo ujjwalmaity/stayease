@@ -5,11 +5,11 @@ export const createBooking = async (payload) => {
   return response.data;
 };
 
-export const getMyBookings = async () => {
-  const response = await api.get("/bookings/mine");
+export const getMyBookings = async (userId) => {
+  const response = await api.get(`/bookings/mine/${userId}`);
   return response.data;
 };
 
-export const cancelBooking = async (bookingId) => {
-  await api.put(`/bookings/${bookingId}/cancel`);
+export const cancelBooking = async (bookingId, payload) => {
+  await api.put(`/bookings/${bookingId}/cancel`, payload);
 };

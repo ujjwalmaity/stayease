@@ -32,6 +32,9 @@ export default function HotelDialog({
         name: "",
         city: "",
         starRating: 1,
+        description: "",
+        coverImageUrl: "",
+        managerId: 2,
       },
     );
   }, [defaultValues, reset]);
@@ -99,8 +102,61 @@ export default function HotelDialog({
             },
           })}
         />
-      </DialogContent>
 
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Description"
+          multiline
+          rows={4}
+          error={!!errors.description}
+          helperText={errors.description?.message}
+          {...register("description", {
+            required: "Description is required",
+            minLength: {
+              value: 10,
+              message: "Description must be at least 10 characters",
+            },
+          })}
+        />
+
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Cover Image URL"
+          error={!!errors.coverImageUrl}
+          helperText={errors.coverImageUrl?.message}
+          {...register("coverImageUrl", {
+            required: "Cover image URL is required",
+            pattern: {
+              value: /^(https?:\/\/.*)$/i,
+              message: "Please enter a valid image URL",
+            },
+          })}
+        />
+
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Manager ID"
+          type="number"
+          error={!!errors.managerId}
+          helperText={errors.managerId?.message}
+          inputProps={{
+            min: 1,
+            max: 5,
+          }}
+          {...register("managerId", {
+            required: "Manager ID is required",
+            valueAsNumber: true,
+            min: {
+              value: 1,
+              message: "Manager ID must be at least 1",
+            },
+          })}
+        />
+
+      </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
 

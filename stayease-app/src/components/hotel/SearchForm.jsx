@@ -77,6 +77,7 @@ export default function SearchForm({ onSearch }) {
       <Grid item xs={12} md={3}>
         <DatePicker
           label="Check-In Date"
+          format="DD/MM/YYYY"
           minDate={dayjs()}
           value={checkInDate}
           onChange={(value) => {
@@ -100,6 +101,7 @@ export default function SearchForm({ onSearch }) {
       <Grid item xs={12} md={3}>
         <DatePicker
           label="Check-Out Date"
+          format="DD/MM/YYYY"
           minDate={checkInDate || dayjs()}
           value={checkOutDate}
           onChange={(value) => {
