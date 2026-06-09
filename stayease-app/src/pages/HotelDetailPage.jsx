@@ -10,6 +10,7 @@ import {
   Divider,
   CircularProgress,
   Alert,
+  useRadioGroup,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
@@ -85,6 +86,8 @@ export default function HotelDetailPage() {
     try {
       const booking = await createBooking({
         roomId: selectedRoom.id,
+        hotelId: hotel.id,
+        userId: auth.userId,
         checkInDate,
         checkOutDate,
       });

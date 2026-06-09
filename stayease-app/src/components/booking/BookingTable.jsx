@@ -26,7 +26,7 @@ export default function BookingTable({ bookings, onCancel }) {
       </TableHead>
       <TableBody>
         {bookings.map((booking) => (
-          <TableRow key={booking.bookingId}>
+          <TableRow key={booking.id}>
             <TableCell>{booking.bookingRef}</TableCell>
             <TableCell>{booking.hotelName}</TableCell>
             <TableCell>{booking.roomType}</TableCell>
@@ -43,7 +43,7 @@ export default function BookingTable({ bookings, onCancel }) {
               {booking.status === "CONFIRMED" && (
                 <Button
                   color="error"
-                  onClick={() => onCancel(booking.bookingId)}
+                  onClick={() => onCancel(booking.id)}
                 >
                   Cancel
                 </Button>
