@@ -7,6 +7,7 @@ import {
   Button,
   Chip,
 } from "@mui/material";
+import dayjs from "dayjs";
 
 
 export default function BookingTable({ bookings, onCancel }) {
@@ -30,8 +31,8 @@ export default function BookingTable({ bookings, onCancel }) {
             <TableCell>{booking.bookingRef}</TableCell>
             <TableCell>{booking.hotelName}</TableCell>
             <TableCell>{booking.roomType}</TableCell>
-            <TableCell>{booking.checkInDate}</TableCell>
-            <TableCell>{booking.checkOutDate}</TableCell>
+            <TableCell>{dayjs(booking.checkInDate).format("DD-MM-YYYY")}</TableCell>
+            <TableCell>{dayjs(booking.checkOutDate).format("DD-MM-YYYY")}</TableCell>
             <TableCell>₹{booking.totalPrice}</TableCell>
             <TableCell>
               <Chip
@@ -42,6 +43,18 @@ export default function BookingTable({ bookings, onCancel }) {
             <TableCell>
               {booking.status === "CONFIRMED" && (
                 <Button
+                sx={{
+                    backgroundColor: "#d32f2f",
+                    color: "#fff",
+                    fontWeight: 600,
+                    px: 2,
+                    textTransform: "none",
+                    boxShadow: 2,
+                    "&:hover": {
+                      backgroundColor: "#c62828",
+                      boxShadow: 4,
+                    },
+                  }}
                   color="error"
                   onClick={() => onCancel(booking.id)}
                 >

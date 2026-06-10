@@ -29,6 +29,19 @@ export default function AvailableRoomsTable({ rooms, onBook }) {
             <TableCell>{room.description}</TableCell>
             <TableCell>
               <Button
+                sx={{
+                  backgroundColor: "#1976d2",
+                  color: "#fff",
+                  fontWeight: 600,
+                  borderRadius: 28,
+                  px: 2,
+                  textTransform: "none",
+                  boxShadow: 2,
+                  "&:hover": {
+                    backgroundColor: "#1565c0",
+                    boxShadow: 4,
+                  },
+                }}
                 variant="contained"
                 size="small"
                 onClick={() => onBook(room)}

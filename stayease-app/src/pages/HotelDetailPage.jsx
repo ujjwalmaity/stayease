@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Card,
   CardMedia,
@@ -24,6 +24,9 @@ import BookingDialog from "../components/booking/BookingDialog";
 export default function HotelDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialCheckIn = location.state?.checkInDate || "";
+  const initialCheckOut = location.state?.checkOutDate || "";
   const auth = useAuth();
   const [hotel, setHotel] = useState(null);
   const [rooms, setRooms] = useState([]);
@@ -33,6 +36,12 @@ export default function HotelDetailPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
+
+  useEffect(() => {
+    if (hotel && initialCheckIn && initialCheckOut) {
+      searchRooms(initialCheckIn, initialCheckOut);
+    }
+  }, [hotel, initialCheckIn, initialCheckOut]);
 
   useEffect(() => {
     if (!id) return;
@@ -136,7 +145,11 @@ export default function HotelDetailPage() {
       <Typography variant="h5" gutterBottom>
         Available Rooms
       </Typography>
-      <AvailabilitySearch onSearch={searchRooms} />
+      <AvailabilitySearch
+        onSearch={searchRooms}
+        initialCheckIn={checkInDate}
+        initialCheckOut={checkOutDate}
+      />
       {loading && <CircularProgress />}
       {!loading && searched && rooms.length === 0 && (
         <Alert severity="info">No rooms available</Alert>

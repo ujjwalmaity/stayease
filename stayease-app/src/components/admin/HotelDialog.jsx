@@ -8,6 +8,8 @@ import {
   TextField,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function HotelDialog({
   open,
@@ -155,12 +157,28 @@ export default function HotelDialog({
             },
           })}
         />
-
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<CancelIcon />}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+          }}
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
 
         <Button
+          startIcon={<CheckCircleIcon />}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+            px: 3,
+          }}
           variant="contained"
           onClick={handleSubmit(onSubmit)}
           disabled={!isValid}

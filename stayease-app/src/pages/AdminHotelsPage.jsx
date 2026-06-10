@@ -59,8 +59,24 @@ export default function AdminHotelsPage() {
       </Typography>
 
       <Box sx={{ mb: 2 }}>
-        <Button variant="contained" onClick={handleCreate}>
-          Create Hotel
+        <Button
+          sx={{
+            backgroundColor: "#1976d2",
+            color: "#fff",
+            fontWeight: 600,
+            borderRadius: 28,
+            px: 2,
+            textTransform: "none",
+            boxShadow: 2,
+            "&:hover": {
+              backgroundColor: "#1565c0",
+              boxShadow: 4,
+            },
+          }}
+          variant="contained"
+          onClick={handleCreate}
+        >
+          + Create Hotel
         </Button>
       </Box>
 
@@ -78,20 +94,24 @@ export default function AdminHotelsPage() {
         defaultValues={selectedHotel || {}}
         onClose={() => setDialogOpen(false)}
         onSubmit={async (data) => {
-            try {
-                console.log(data);
-                if (selectedHotel) {
-                  await updateHotel(selectedHotel.id, data);
-                  toast.success("Hotel updated successfully");
-                } else {
-                  await createHotel(data);
-                  toast.success("Hotel created successfully");
-                }
-                setDialogOpen(false);
-                loadHotels();
-            } catch {
-                toast.error(selectedHotel ? "Failed to update hotel" : "Failed to create hotel");
+          try {
+            console.log(data);
+            if (selectedHotel) {
+              await updateHotel(selectedHotel.id, data);
+              toast.success("Hotel updated successfully");
+            } else {
+              await createHotel(data);
+              toast.success("Hotel created successfully");
             }
+            setDialogOpen(false);
+            loadHotels();
+          } catch {
+            toast.error(
+              selectedHotel
+                ? "Failed to update hotel"
+                : "Failed to create hotel",
+            );
+          }
         }}
       />
     </>

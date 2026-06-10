@@ -8,6 +8,8 @@ import {
   Button,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function RoomDialog({
   open,
@@ -55,9 +57,30 @@ export default function RoomDialog({
           {...register("maxOccupancy")}
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSubmit(onSubmit)}>
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<CancelIcon />}
+          onClic={onClose}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+          }}
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          startIcon={<CheckCircleIcon />}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+            px: 3,
+          }}
+          variant="contained"
+          onClick={handleSubmit(onSubmit)}
+        >
           Save
         </Button>
       </DialogActions>

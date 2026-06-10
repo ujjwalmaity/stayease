@@ -1,30 +1,39 @@
 import { Grid, Button, Alert } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
-export default function AvailabilitySearch({ onSearch }) {
-  const [checkInDate, setCheckInDate] = useState(null);
-  const [checkOutDate, setCheckOutDate] = useState(null);
+export default function AvailabilitySearch({
+  onSearch,
+  initialCheckIn,
+  initialCheckOut,
+}) {
+  const [checkInDate, setCheckInDate] = useState(
+    initialCheckIn ? dayjs(initialCheckIn) : null,
+  );
+  const [checkOutDate, setCheckOutDate] = useState(
+    initialCheckOut ? dayjs(initialCheckOut) : null,
+  );
   const [error, setError] = useState("");
+  useEffect(() => {
+    setCheckInDate(initialCheckIn ? dayjs(initialCheckIn) : null);
+    setCheckOutDate(initialCheckOut ? dayjs(initialCheckOut) : null);
+  }, [initialCheckIn, initialCheckOut]);
+
   const handleSearch = () => {
     setError("");
-
     if (!checkInDate) {
       setError("Please select a check-in date");
-
       return;
     }
 
     if (!checkOutDate) {
       setError("Please select a check-out date");
-
       return;
     }
 
     if (checkOutDate.isSame(checkInDate)) {
       setError("Check-out date must be after check-in date");
-
       return;
     }
 
@@ -65,7 +74,18 @@ export default function AvailabilitySearch({ onSearch }) {
       </Grid>
       <Grid item xs={12} md={2}>
         <Button
-          sx={{ p: 2 }}
+          sx={{
+            height: "56px",
+            borderRadius: 3,
+            fontWeight: 600,
+            fontSize: "1rem",
+            textTransform: "none",
+            boxShadow: 3,
+            "&:hover": {
+              boxShadow: 6,
+            },
+            transition: "all 0.2s ease",
+          }}
           fullWidth
           variant="contained"
           onClick={handleSearch}

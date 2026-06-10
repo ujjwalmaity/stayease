@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 
-export default function HotelCard({ hotel }) {
+export default function HotelCard({ hotel, searchDates }) {
   return (
     <Card
       sx={{
@@ -35,15 +35,32 @@ export default function HotelCard({ hotel }) {
         <Typography variant="h6" color="primary">
           ₹{hotel.startingPrice}/night
         </Typography>
-        <Button
-          component={Link}
+        <Link
           to={`/hotels/${hotel.id}`}
-          variant="contained"
-          fullWidth
-          sx={{ mt: 2 }}
+          state={searchDates}
+          style={{ textDecoration: "none" }}
         >
-          View Rooms
-        </Button>
+          <Button
+            variant="contained"
+            fullWidth
+            sx={{
+              backgroundColor: "#1976d2",
+              color: "#fff",
+              fontWeight: 600,
+              borderRadius: 28,
+              px: 2,
+              mt: 2,
+              textTransform: "none",
+              boxShadow: 2,
+              "&:hover": {
+                backgroundColor: "#1565c0",
+                boxShadow: 4,
+              },
+            }}
+          >
+            View Rooms
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );

@@ -8,9 +8,16 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState([]);
   const [searched, setSearched] = useState(false);
+  // add state for dates
+  const [checkInDate, setCheckInDate] = useState("");
+  const [checkOutDate, setCheckOutDate] = useState("");
+
+  // handleSearch receives { city, checkInDate, checkOutDate }
   const handleSearch = async (data) => {
     try {
       setLoading(true);
+      setCheckInDate(data.checkInDate || "");
+      setCheckOutDate(data.checkOutDate || "");
       const result = await searchHotels(data.city);
       setHotels(result);
       setSearched(true);
@@ -30,8 +37,24 @@ export default function HomePage() {
         textAlign: "center",
       }}
     >
-      <Typography variant="h4" gutterBottom>
-        Find Hotels
+      <Typography
+        variant="h3"
+        sx={{
+          color: "#1976d2",
+          fontWeight: 700,
+          mb: 1,
+        }}
+      >
+        Find Your Perfect Stay
+      </Typography>
+      <Typography
+        variant="h6"
+        sx={{
+          color: "#1976d2",
+          mb: 4,
+        }}
+      >
+        Discover amazing hotels at unbeatable prices
       </Typography>
       <SearchForm onSearch={handleSearch} />
       {loading && <CircularProgress />}
@@ -40,7 +63,10 @@ export default function HomePage() {
       )}
       {!loading && hotels.length > 0 && (
         <Box sx={{ width: "100%", mt: 3 }}>
-          <HotelGrid hotels={hotels} />
+          <HotelGrid
+            hotels={hotels}
+            searchDates={{ checkInDate, checkOutDate }}
+          />
         </Box>
       )}
     </Box>
