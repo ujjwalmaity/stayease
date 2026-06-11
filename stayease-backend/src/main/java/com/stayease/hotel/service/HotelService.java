@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -24,11 +25,20 @@ public class HotelService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public List<HotelResponse> listByCity(String city) {
-        List<Hotel> hotels = (city == null || city.isBlank())
-                ? hotelRepository.findAll()
-                : hotelRepository.findByCityIgnoreCase(city);
-        return hotels.stream().map(h -> HotelResponse.from(h, minPrice(h.getId()))).toList();
+    public List<HotelResponse> listAll() {
+        return hotelRepository.findAll()
+                .stream().map(h -> HotelResponse.from(h, minPrice(h.getId()))).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<HotelResponse> listByCity(String city, LocalDate checkIn, LocalDate checkOut) {
+        if (city == null || city.isBlank()) throw new BadRequestException("city is required");
+        if (checkIn == null) throw new BadRequestException("checkIn is required");
+        if (checkOut == null) throw new BadRequestException("checkOut is required");
+        if (!checkOut.isAfter(checkIn)) throw new BadRequestException("checkOut must be after checkIn");
+        if (checkIn.isBefore(LocalDate.now())) throw new BadRequestException("checkIn cannot be in the past");
+        return hotelRepository.findAvailableByCity(city, checkIn, checkOut)
+                .stream().map(h -> HotelResponse.from(h, minPrice(h.getId()))).toList();
     }
 
     @Transactional(readOnly = true)

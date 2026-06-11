@@ -1,13 +1,17 @@
-import { Container, Paper, TextField, Button, Typography } from "@mui/material";
+import { Container, Paper, TextField, Button, Typography, IconButton, InputAdornment } from "@mui/material";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { registerUser } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const auth = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -19,8 +23,8 @@ export default function RegisterPage() {
       auth.login(response.token, response.role);
       toast.success("Account created");
       navigate("/");
-    } catch {
-      toast.error("Registration failed");
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
@@ -64,15 +68,24 @@ export default function RegisterPage() {
             })}
           />
           <TextField
+            {...register("password", { required: "Password is required" })}
             fullWidth
             margin="normal"
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             error={!!errors.password}
             helperText={errors.password?.message}
-            {...register("password", {
-              required: "Password is required",
-            })}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword((p) => !p)} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
           <Button fullWidth variant="contained" type="submit" disabled={!isValid} sx={{ mt: 2 }}>
             Register

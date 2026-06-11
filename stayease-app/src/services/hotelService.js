@@ -1,7 +1,7 @@
 import api from "../api/axios";
 
-export const searchHotels = async (city) => {
-  const response = await api.get(`/hotels?city=${city}`);
+export const searchHotels = async (city, checkIn, checkOut) => {
+  const response = await api.get("/hotels", { params: { city, checkIn, checkOut } });
   return response.data;
 };
 
@@ -25,6 +25,6 @@ export const deleteHotel = async (hotelId) => {
 };
 
 export const getAllHotels = async () => {
-  const response = await api.get("/hotels");
+  const response = await api.get("/hotels/all");
   return response.data;
 };

@@ -19,8 +19,8 @@ export default function AdminHotelsPage() {
     try {
       const result = await getAllHotels();
       setHotels(result);
-    } catch {
-      toast.error("Unable to load hotels");
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
@@ -47,8 +47,8 @@ export default function AdminHotelsPage() {
       await deleteHotel(id);
       toast.success("Hotel deleted");
       loadHotels();
-    } catch {
-      toast.error("Delete failed");
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
@@ -95,7 +95,6 @@ export default function AdminHotelsPage() {
         onClose={() => setDialogOpen(false)}
         onSubmit={async (data) => {
           try {
-            console.log(data);
             if (selectedHotel) {
               await updateHotel(selectedHotel.id, data);
               toast.success("Hotel updated successfully");
@@ -105,12 +104,8 @@ export default function AdminHotelsPage() {
             }
             setDialogOpen(false);
             loadHotels();
-          } catch {
-            toast.error(
-              selectedHotel
-                ? "Failed to update hotel"
-                : "Failed to create hotel",
-            );
+          } catch (error) {
+            toast.error(error.message);
           }
         }}
       />

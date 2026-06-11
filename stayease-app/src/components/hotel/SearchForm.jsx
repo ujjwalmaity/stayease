@@ -76,13 +76,10 @@ export default function SearchForm({ onSearch }) {
             placeholder="Enter city"
             value={city}
             onChange={(e) => {
-              setCity(e.target.value);
-
-              if (errors.city) {
-                setErrors((prev) => ({
-                  ...prev,
-                  city: "",
-                }));
+              const value = e.target.value;
+              if (/^[a-zA-Z\s]*$/.test(value)) {
+                setCity(value);
+                if (errors.city) setErrors((prev) => ({ ...prev, city: "" }));
               }
             }}
             error={!!errors.city}

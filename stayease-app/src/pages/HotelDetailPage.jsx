@@ -51,8 +51,7 @@ export default function HotelDetailPage() {
         const result = await getHotelById(id);
         setHotel(result);
       } catch (error) {
-        console.error(error);
-        toast.error("Unable to load hotel");
+        toast.error(error.message);
       }
     };
     loadHotel();
@@ -67,8 +66,8 @@ export default function HotelDetailPage() {
       const result = await getAvailableRooms(id, checkIn, checkOut);
       setRooms(result);
       setSearched(true);
-    } catch {
-      toast.error("Unable to load rooms");
+    } catch (error) {
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -105,8 +104,8 @@ export default function HotelDetailPage() {
       navigate("/booking-success", {
         state: booking,
       });
-    } catch {
-      toast.error("Booking failed");
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 

@@ -7,10 +7,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -21,10 +23,20 @@ import java.util.List;
 public class HotelController {
     private final HotelService hotelService;
 
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "List all hotels regardless of availability — ADMIN only.")
+    public List<HotelResponse> listAll() {
+        return hotelService.listAll();
+    }
+
     @GetMapping
-    @Operation(summary = "List hotels (any authenticated user). Requires Bearer JWT.")
-    public List<HotelResponse> list(@RequestParam(required = false) String city) {
-        return hotelService.listByCity(city);
+    @Operation(summary = "Search hotels by city and dates. city, checkIn, checkOut are mandatory. Requires Bearer JWT.")
+    public List<HotelResponse> list(
+            @RequestParam String city,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut) {
+        return hotelService.listByCity(city, checkIn, checkOut);
     }
 
     @GetMapping("/{id}")

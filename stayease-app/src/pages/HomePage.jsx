@@ -18,7 +18,7 @@ export default function HomePage() {
       setLoading(true);
       setCheckInDate(data.checkInDate || "");
       setCheckOutDate(data.checkOutDate || "");
-      const result = await searchHotels(data.city);
+      const result = await searchHotels(data.city, data.checkInDate, data.checkOutDate);
       setHotels(result);
       setSearched(true);
     } finally {

@@ -29,6 +29,9 @@ export default function HotelCard({ hotel, searchDates }) {
       <CardMedia component="img" height="220" image={hotel.coverImageUrl} />
       <CardContent>
         <Typography variant="h6">{hotel.name}</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 0.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          {hotel.description}
+        </Typography>
         <Typography>{hotel.city}</Typography>
         <Chip label={`${hotel.starRating} Star`} sx={{ mt: 1 }} />
         <Typography sx={{ mt: 2 }}>Starting from</Typography>

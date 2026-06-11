@@ -28,8 +28,8 @@ export default function MyStaysPage() {
       await cancelBooking(bookingId, { userId: auth.userId });
       toast.success("Booking cancelled");
       await loadBookings();
-    } catch {
-      toast.error("Unable to cancel booking");
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 

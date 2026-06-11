@@ -20,9 +20,9 @@ export default function ManagerDashboardPage() {
       ]);
       setBookings(bookingsResult);
       setRooms(roomsResult);
-    } catch {
+    } catch (error) {
       setError(true);
-      toast.error("Unable to load dashboard");
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -36,8 +36,8 @@ export default function ManagerDashboardPage() {
     try {
       await toggleRoomStatus(roomId);
       await loadData();
-    } catch {
-      toast.error("Unable to update room");
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
