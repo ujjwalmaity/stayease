@@ -22,6 +22,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             """)
     List<Booking> findUpcomingForHotel(@Param("hotelId") Long hotelId, @Param("today") LocalDate today);
 
+    @EntityGraph(attributePaths = {"user", "room", "room.hotel"})
+    @Query("""
+            SELECT b FROM Booking b
+            WHERE b.room.hotel.managerId = :managerId AND b.status <> com.stayease.booking.entity.BookingStatus.CANCELLED
+              AND b.checkOutDate >= :today
+            ORDER BY b.checkInDate ASC
+            """)
+    List<Booking> findUpcomingForManager(@Param("managerId") Long managerId, @Param("today") LocalDate today);
+
     @Query("""
             SELECT COUNT(b) FROM Booking b
             WHERE b.room.id = :roomId AND b.status <> com.stayease.booking.entity.BookingStatus.CANCELLED

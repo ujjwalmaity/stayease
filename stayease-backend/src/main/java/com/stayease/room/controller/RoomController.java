@@ -33,33 +33,40 @@ public class RoomController {
         return roomService.listByHotel(hotelId);
     }
 
+    @GetMapping("/api/manager/{managerId}/rooms")
+    @PreAuthorize("hasRole('MANAGER') and #managerId == authentication.principal.id")
+    @Operation(summary = "List all rooms for a manager across their hotels — MANAGER.")
+    public List<RoomResponse> roomsForManager(@PathVariable Long managerId) {
+        return roomService.listByManager(managerId);
+    }
+
     @PostMapping("/api/hotels/{hotelId}/rooms")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN') and #req.userId() == authentication.principal.id")
-    @Operation(summary = "Create room — MANAGER or ADMIN. Returns 403 if token missing/invalid or role is insufficient.")
+    @PreAuthorize("hasRole('MANAGER') and #req.userId() == authentication.principal.id")
+    @Operation(summary = "Create room — MANAGER. Returns 403 if token missing/invalid or role is insufficient.")
     public ResponseEntity<RoomResponse> create(@PathVariable Long hotelId,
                                                @P("req") @Valid @RequestBody RoomRequest req) {
         return ResponseEntity.status(201).body(roomService.create(hotelId, req));
     }
 
     @PutMapping("/api/rooms/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN') and #req.userId() == authentication.principal.id")
-    @Operation(summary = "Update room — MANAGER or ADMIN. Returns 403 if token missing/invalid or role is insufficient.")
+    @PreAuthorize("hasRole('MANAGER') and #req.userId() == authentication.principal.id")
+    @Operation(summary = "Update room — MANAGER. Returns 403 if token missing/invalid or role is insufficient.")
     public RoomResponse update(@PathVariable Long id,
                                @P("req") @Valid @RequestBody RoomRequest req) {
         return roomService.update(id, req);
     }
 
     @DeleteMapping("/api/rooms/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN') and #req.userId() == authentication.principal.id")
-    @Operation(summary = "Delete room — MANAGER or ADMIN. Returns 403 if token missing/invalid or role is insufficient.")
+    @PreAuthorize("hasRole('MANAGER') and #req.userId() == authentication.principal.id")
+    @Operation(summary = "Delete room — MANAGER. Returns 403 if token missing/invalid or role is insufficient.")
     public ResponseEntity<Void> delete(@PathVariable Long id, @P("req") @Valid @RequestBody UserActionRequest req) {
         roomService.delete(id, req.userId());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/api/rooms/{id}/status")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN') and #req.userId() == authentication.principal.id")
-    @Operation(summary = "Toggle room isActive — MANAGER or ADMIN. Returns 403 if token missing/invalid or role is insufficient.")
+    @PreAuthorize("hasRole('MANAGER') and #req.userId() == authentication.principal.id")
+    @Operation(summary = "Toggle room isActive — MANAGER. Returns 403 if token missing/invalid or role is insufficient.")
     public RoomResponse toggle(@PathVariable Long id,
                                @P("req") @Valid @RequestBody RoomStatusRequest req) {
         return roomService.toggleActive(id, req);

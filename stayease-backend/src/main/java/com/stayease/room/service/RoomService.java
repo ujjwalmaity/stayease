@@ -29,6 +29,15 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
+    public List<RoomResponse> listByManager(Long managerId) {
+        User manager = userService.getById(managerId);
+        if (manager.getRole() != Role.MANAGER) {
+            throw new BadRequestException("managerId must belong to a MANAGER user");
+        }
+        return roomRepository.findByManagerId(managerId).stream().map(RoomResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<RoomResponse> listAvailable(Long hotelId, LocalDate checkIn, LocalDate checkOut) {
         validateDates(checkIn, checkOut);
         return roomRepository.findAvailable(hotelId, checkIn, checkOut).stream().map(RoomResponse::from).toList();
@@ -84,7 +93,6 @@ public class RoomService {
 
     private void ensureManagerOf(Hotel hotel, Long userId) {
         User user = userService.getById(userId);
-        if (user.getRole() == Role.ADMIN) return;
         if (user.getRole() != Role.MANAGER || hotel.getManagerId() == null
                 || !hotel.getManagerId().equals(user.getId()))
             throw new ForbiddenException("You are not the manager of this hotel");

@@ -17,6 +17,10 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @EntityGraph(attributePaths = "hotel")
     List<Room> findByHotelId(Long hotelId);
 
+    @EntityGraph(attributePaths = "hotel")
+    @Query("SELECT r FROM Room r WHERE r.hotel.managerId = :managerId")
+    List<Room> findByManagerId(@Param("managerId") Long managerId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r FROM Room r WHERE r.id = :id")
     Optional<Room> findByIdForUpdate(@Param("id") Long id);

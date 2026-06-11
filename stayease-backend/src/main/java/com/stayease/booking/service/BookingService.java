@@ -72,6 +72,16 @@ public class BookingService {
                 .stream().map(BookingResponse::from).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<BookingResponse> upcomingForManager(Long managerId) {
+        User manager = userService.getById(managerId);
+        if (manager.getRole() != Role.MANAGER) {
+            throw new BadRequestException("managerId must belong to a MANAGER user");
+        }
+        return bookingRepository.findUpcomingForManager(managerId, LocalDate.now())
+                .stream().map(BookingResponse::from).toList();
+    }
+
     @Transactional
     public BookingResponse cancel(Long id, Long userId) {
         User user = userService.getById(userId);

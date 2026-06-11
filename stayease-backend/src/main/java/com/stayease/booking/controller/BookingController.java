@@ -38,11 +38,18 @@ public class BookingController {
     }
 
     @GetMapping("/hotel/{hotelId}/upcoming")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN') and #userId == authentication.principal.id")
-    @Operation(summary = "Upcoming bookings for a hotel — MANAGER or ADMIN. Returns 403 otherwise.")
+    @PreAuthorize("hasRole('ADMIN') and #userId == authentication.principal.id")
+    @Operation(summary = "Upcoming bookings for a hotel — ADMIN. Returns 403 otherwise.")
     public List<BookingResponse> upcoming(@PathVariable Long hotelId,
                                           @RequestParam Long userId) {
         return bookingService.upcomingForHotel(hotelId, userId);
+    }
+
+    @GetMapping("/manager/{managerId}/upcoming")
+    @PreAuthorize("hasRole('MANAGER') and #managerId == authentication.principal.id")
+    @Operation(summary = "Upcoming bookings for all hotels of a manager — MANAGER. Returns 403 otherwise.")
+    public List<BookingResponse> upcomingForManager(@PathVariable Long managerId) {
+        return bookingService.upcomingForManager(managerId);
     }
 
     @PutMapping("/{id}/cancel")
