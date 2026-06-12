@@ -25,6 +25,12 @@ public class HotelService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
+    public List<HotelResponse> listByManager(Long managerId) {
+        return hotelRepository.findByManagerId(managerId)
+                .stream().map(h -> HotelResponse.from(h, minPrice(h.getId()))).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<HotelResponse> listAll() {
         return hotelRepository.findAll()
                 .stream().map(h -> HotelResponse.from(h, minPrice(h.getId()))).toList();

@@ -1,182 +1,236 @@
-import { Button, Grid, TextField, Paper } from "@mui/material";
+import { Button, Box, Paper, Autocomplete, TextField, CircularProgress } from "@mui/material";
 import InputAdornment from "@mui/material/InputAdornment";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
-import { useState } from "react";
+import SearchIcon from "@mui/icons-material/Search";
+import { useState, useCallback, useRef } from "react";
 import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import colors from "../../styles/colors";
+
+const fieldSx = {
+  "& .MuiOutlinedInput-root": {
+    bgcolor: "#fff",
+    borderRadius: "12px",
+    fontSize: "0.9375rem",
+    "& fieldset": { borderColor: colors.outlineVariant },
+    "&:hover fieldset": { borderColor: colors.onSurfaceVariant },
+    "&.Mui-focused fieldset": { borderColor: colors.accent, borderWidth: "2px" },
+  },
+  "& .MuiInputLabel-root.Mui-focused": { color: colors.accent },
+};
+
+const NOMINATIM_BASE = "https://nominatim.openstreetmap.org/search";
 
 export default function SearchForm({ onSearch }) {
   const [city, setCity] = useState("");
+  const [cityOptions, setCityOptions] = useState([]);
+  const [cityLoading, setCityLoading] = useState(false);
   const [checkInDate, setCheckInDate] = useState(null);
   const [checkOutDate, setCheckOutDate] = useState(null);
+  const [errors, setErrors] = useState({ city: "", checkIn: "", checkOut: "" });
+  const debounceRef = useRef(null);
 
-  const [errors, setErrors] = useState({
-    city: "",
-    checkInDate: "",
-    checkOutDate: "",
-  });
+  const fetchCities = useCallback((query) => {
+    if (!query || query.length < 2) { setCityOptions([]); return; }
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setCityLoading(true);
+      try {
+        const res = await fetch(
+          `${NOMINATIM_BASE}?q=${encodeURIComponent(query)}&addressdetails=1&limit=10&format=json&countrycodes=in`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        const data = await res.json();
+        const seen = new Set();
+        const cities = [];
+        for (const d of data) {
+          const name =
+            d.address?.city ||
+            d.address?.town ||
+            d.address?.village ||
+            d.address?.municipality ||
+            d.address?.county ||
+            d.address?.state_district ||
+            d.address?.state;
+          if (name && !seen.has(name)) {
+            seen.add(name);
+            cities.push(name);
+          }
+        }
+        setCityOptions(cities.slice(0, 8));
+      } catch {
+        setCityOptions([]);
+      } finally {
+        setCityLoading(false);
+      }
+    }, 400);
+  }, []);
 
   const validate = () => {
-    const newErrors = {
-      city: "",
-      checkInDate: "",
-      checkOutDate: "",
-    };
-
-    let isValid = true;
-
-    if (!city.trim()) {
-      newErrors.city = "City is required";
-      isValid = false;
-    }
-
-    if (!checkInDate) {
-      newErrors.checkInDate = "Check-in date is required";
-      isValid = false;
-    }
-
-    if (!checkOutDate) {
-      newErrors.checkOutDate = "Check-out date is required";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
+    const e = { city: "", checkIn: "", checkOut: "" };
+    let ok = true;
+    if (!city.trim()) { e.city = "City is required"; ok = false; }
+    if (!checkInDate) { e.checkIn = "Required"; ok = false; }
+    if (!checkOutDate) { e.checkOut = "Required"; ok = false; }
+    setErrors(e);
+    return ok;
   };
 
   const handleSearch = () => {
     if (!validate()) return;
-
     onSearch({
       city: city.trim(),
-      checkInDate: checkInDate?.format("YYYY-MM-DD") || "",
-      checkOutDate: checkOutDate?.format("YYYY-MM-DD") || "",
+      checkInDate: checkInDate.format("YYYY-MM-DD"),
+      checkOutDate: checkOutDate.format("YYYY-MM-DD"),
     });
   };
 
   return (
     <Paper
-      elevation={6}
+      component="form"
+      role="search"
+      aria-label="Search for hotels"
+      elevation={0}
+      onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
       sx={{
-        padding: "30px 24px 0px 24px",
-        borderRadius: 4,
-        backgroundColor: "#fff",
-        border: "1px solid #e0e0e0",
-        maxWidth: 1100,
+        borderRadius: "16px",
+        bgcolor: "#fff",
+        boxShadow: "0 8px 40px rgba(0,0,0,0.20)",
+        maxWidth: 900,
         mx: "auto",
-        mt: 1,
-        boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+        p: { xs: 2, md: 2 },
+        border: `1px solid ${colors.outlineVariant}`,
       }}
     >
-      <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={3}>
-          <TextField
-            fullWidth
-            label="Destination"
-            placeholder="Enter city"
-            value={city}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^[a-zA-Z\s]*$/.test(value)) {
-                setCity(value);
-                if (errors.city) setErrors((prev) => ({ ...prev, city: "" }));
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: { xs: 2, md: 1.5 },
+          alignItems: "flex-start",
+        }}
+      >
+        {/* ── City Autocomplete ── */}
+        <Box sx={{ flex: { md: "2 1 0" }, minWidth: 0, width: "100%" }}>
+          <Autocomplete
+            freeSolo
+            options={cityOptions}
+            loading={cityLoading}
+            inputValue={city}
+            onInputChange={(_, val, reason) => {
+              setCity(val);
+              if (reason === "input") fetchCities(val);
+              if (errors.city) setErrors((p) => ({ ...p, city: "" }));
+            }}
+            onChange={(_, val) => {
+              if (val) {
+                setCity(val);
+                if (errors.city) setErrors((p) => ({ ...p, city: "" }));
               }
             }}
-            error={!!errors.city}
-            helperText={errors.city}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LocationOnOutlinedIcon />
-                  </InputAdornment>
-                ),
-              },
-            }}
+            filterOptions={(x) => x}
+            noOptionsText={city.length < 2 ? "Type at least 2 characters…" : "No cities found"}
+            loadingText="Searching cities…"
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Destination"
+                placeholder="City, e.g. Mumbai"
+                error={!!errors.city}
+                helperText={errors.city}
+                sx={fieldSx}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocationOnOutlinedIcon
+                        sx={{ color: errors.city ? colors.error : colors.accent, fontSize: 20 }}
+                      />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <>
+                      {cityLoading && <CircularProgress size={16} sx={{ color: colors.accent }} />}
+                      {params.InputProps?.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
           />
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} md={3}>
+        {/* ── Check-In ── */}
+        <Box sx={{ flex: { md: "1 1 0" }, minWidth: 0, width: "100%" }}>
           <DatePicker
-            label="Check-In Date"
-            format="DD/MM/YYYY"
+            label="Check-In"
+            format="DD MMM YYYY"
             minDate={dayjs()}
             value={checkInDate}
-            onChange={(value) => {
-              setCheckInDate(value);
-              if (errors.checkInDate) {
-                setErrors((prev) => ({
-                  ...prev,
-                  checkInDate: "",
-                }));
-              }
+            onChange={(v) => {
+              setCheckInDate(v);
+              if (checkOutDate && v && !checkOutDate.isAfter(v)) setCheckOutDate(null);
+              if (errors.checkIn) setErrors((p) => ({ ...p, checkIn: "" }));
             }}
             slotProps={{
               textField: {
                 fullWidth: true,
-                error: !!errors.checkInDate,
-                helperText: errors.checkInDate,
-                sx: {
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 3,
-                  },
-                },
+                error: !!errors.checkIn,
+                helperText: errors.checkIn,
+                sx: fieldSx,
               },
             }}
           />
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Box>
+
+        {/* ── Check-Out ── */}
+        <Box sx={{ flex: { md: "1 1 0" }, minWidth: 0, width: "100%" }}>
           <DatePicker
-            label="Check-Out Date"
-            format="DD/MM/YYYY"
-            minDate={checkInDate || dayjs()}
+            label="Check-Out"
+            format="DD MMM YYYY"
+            minDate={checkInDate ? checkInDate.add(1, "day") : dayjs().add(1, "day")}
             value={checkOutDate}
-            onChange={(value) => {
-              setCheckOutDate(value);
-              if (errors.checkOutDate) {
-                setErrors((prev) => ({
-                  ...prev,
-                  checkOutDate: "",
-                }));
-              }
+            onChange={(v) => {
+              setCheckOutDate(v);
+              if (errors.checkOut) setErrors((p) => ({ ...p, checkOut: "" }));
             }}
             slotProps={{
               textField: {
                 fullWidth: true,
-                error: !!errors.checkOutDate,
-                helperText: errors.checkOutDate,
-                sx: {
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 3,
-                  },
-                },
+                error: !!errors.checkOut,
+                helperText: errors.checkOut,
+                sx: fieldSx,
               },
             }}
           />
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Box>
+
+        {/* ── Search Button ── */}
+        <Box sx={{ flex: { md: "0 0 auto" }, width: { xs: "100%", md: "auto" } }}>
           <Button
-            fullWidth
+            type="submit"
             variant="contained"
+            size="large"
             onClick={handleSearch}
+            startIcon={<SearchIcon />}
+            fullWidth
             sx={{
-              height: "56px",
-              borderRadius: 3,
-              fontWeight: 600,
-              fontSize: "1rem",
-              textTransform: "none",
-              boxShadow: 3,
-              "&:hover": {
-                boxShadow: 6,
-                // transform: "translateY(-2px)",
-              },
-              transition: "all 0.2s ease",
+              height: 56,
+              px: 3.5,
+              borderRadius: "12px",
+              bgcolor: colors.accent,
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: "0.9375rem",
+              whiteSpace: "nowrap",
+              boxShadow: "none",
+              "&:hover": { bgcolor: colors.accentDark, boxShadow: "none", transform: "none" },
             }}
           >
-            Search Hotels
+            Search
           </Button>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Paper>
   );
 }

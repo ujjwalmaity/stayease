@@ -1,6 +1,7 @@
 package com.stayease.room.service;
 
 import com.stayease.exception.*;
+import com.stayease.hotel.dto.HotelResponse;
 import com.stayease.hotel.entity.Hotel;
 import com.stayease.hotel.service.HotelService;
 import com.stayease.room.dto.*;
@@ -22,6 +23,11 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final HotelService hotelService;
     private final UserService userService;
+
+    @Transactional(readOnly = true)
+    public List<HotelResponse> getHotelsByManager(Long managerId) {
+        return hotelService.listByManager(managerId);
+    }
 
     @Transactional(readOnly = true)
     public List<RoomResponse> listByHotel(Long hotelId) {
@@ -52,9 +58,9 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse create(Long hotelId, RoomRequest req) {
+    public RoomResponse create(Long hotelId, RoomRequest req, Long userId) {
         Hotel hotel = hotelService.getEntity(hotelId);
-        ensureManagerOf(hotel, req.userId());
+        ensureManagerOf(hotel, userId);
         Room r = Room.builder().hotel(hotel).roomNumber(req.roomNumber()).roomType(req.roomType())
                 .pricePerNight(req.pricePerNight()).maxOccupancy(req.maxOccupancy())
                 .description(req.description()).imageUrl(req.imageUrl())
@@ -63,9 +69,9 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse update(Long id, RoomRequest req) {
+    public RoomResponse update(Long id, RoomRequest req, Long userId) {
         Room r = getEntity(id);
-        ensureManagerOf(r.getHotel(), req.userId());
+        ensureManagerOf(r.getHotel(), userId);
         r.setRoomNumber(req.roomNumber());
         r.setRoomType(req.roomType());
         r.setPricePerNight(req.pricePerNight());
@@ -84,10 +90,10 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse toggleActive(Long id, RoomStatusRequest req) {
+    public RoomResponse toggleActive(Long id, Boolean isActive, Long userId) {
         Room r = getEntity(id);
-        ensureManagerOf(r.getHotel(), req.userId());
-        r.setActive(req.isActive());
+        ensureManagerOf(r.getHotel(), userId);
+        r.setActive(isActive);
         return RoomResponse.from(roomRepository.save(r));
     }
 

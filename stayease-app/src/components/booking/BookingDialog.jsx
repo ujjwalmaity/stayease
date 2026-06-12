@@ -1,136 +1,106 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Typography,
-  Button,
-  Box,
-  Divider,
-  Stack,
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Typography, Button, Box, Divider, Stack, Grow,
 } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import NightsStayIcon from "@mui/icons-material/NightsStay";
+import colors from "../../styles/colors";
+import { useReducedMotion } from "../../theme/animations";
 
-export default function BookingDialog({
-  open,
-  roomType,
-  price,
-  nights,
-  total,
-  onClose,
-  onConfirm,
-}) {
+const Row = ({ label, value, bold }) => (
+  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Typography variant="body2" color="text.secondary">{label}</Typography>
+    <Typography variant="body2" fontWeight={bold ? 700 : 500}>{value}</Typography>
+  </Box>
+);
+
+export default function BookingDialog({ open, roomType, price, nights, total, onClose, onConfirm }) {
+  const reduced = useReducedMotion();
   return (
     <Dialog
       open={open}
       onClose={onClose}
       maxWidth="xs"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 4,
-          p: 1,
-        },
-      }}
+      aria-describedby="booking-summary"
+      TransitionComponent={reduced ? undefined : Grow}
+      TransitionProps={{ timeout: 220 }}
     >
-      <DialogTitle sx={{ pb: 1 }}>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <HotelIcon color="primary" />
-          <Typography variant="h5" fontWeight={600}>
-            Confirm Booking
-          </Typography>
-        </Stack>
-      </DialogTitle>
+      {/* Header */}
+      <Box sx={{ bgcolor: colors.accent, px: 3, pt: 3, pb: 2.5, display: "flex", alignItems: "center", gap: 1.5 }}>
+        <Box sx={{ width: 40, height: 40, borderRadius: "10px", bgcolor: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <HotelIcon sx={{ color: "#fff", fontSize: 22 }} />
+        </Box>
+        <Box>
+          <Typography variant="h6" sx={{ color: "#fff", lineHeight: 1.2 }}>Confirm Booking</Typography>
+          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.75)" }}>Review your booking details</Typography>
+        </Box>
+      </Box>
 
-      <DialogContent>
+      <DialogContent sx={{ pt: 3 }}>
         <Box
+          id="booking-summary"
           sx={{
-            bgcolor: "#f8fafc",
+            bgcolor: colors.surfaceContainerLow,
             borderRadius: 3,
-            p: 3,
-            border: "1px solid #e2e8f0",
+            p: 2.5,
+            border: `1px solid ${colors.outlineVariant}`,
           }}
         >
-          <Stack spacing={2}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography color="text.secondary">Room Type</Typography>
-              <Typography fontWeight={600}>{roomType}</Typography>
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography color="text.secondary">Price / Night</Typography>
-              <Typography fontWeight={600}>
-                ₹{price.toLocaleString()}
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography color="text.secondary">Number of Nights</Typography>
-              <Typography fontWeight={600}>{nights}</Typography>
+          <Stack spacing={1.75}>
+            <Row label="Room Type" value={roomType} bold />
+            <Row label="Price per Night" value={`₹${Number(price).toLocaleString()}`} />
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                <NightsStayIcon sx={{ fontSize: 16, color: colors.onSurfaceVariant }} />
+                <Typography variant="body2" color="text.secondary">Nights</Typography>
+              </Box>
+              <Typography variant="body2" fontWeight={500}>{nights}</Typography>
             </Box>
 
             <Divider />
 
+            {/* Total */}
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                bgcolor: "#e3f2fd",
+                alignItems: "center",
+                bgcolor: colors.accentContainer,
                 borderRadius: 2,
                 p: 2,
               }}
             >
-              <Typography variant="h6" fontWeight={700}>
-                Total Amount
-              </Typography>
-
-              <Typography variant="h5" fontWeight={700} color="primary.main">
-                ₹{total.toLocaleString()}
+              <Typography variant="h6" fontWeight={700} color={colors.accentDark}>Total</Typography>
+              <Typography variant="h5" fontWeight={800} color={colors.accent}>
+                ₹{Number(total).toLocaleString()}
               </Typography>
             </Box>
           </Stack>
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 3 }}>
+      <DialogActions>
         <Button
           variant="outlined"
           color="error"
           startIcon={<CancelIcon />}
           onClick={onClose}
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-          }}
+          sx={{ borderRadius: 8, flex: 1 }}
         >
           Cancel
         </Button>
-
         <Button
           variant="contained"
           startIcon={<CheckCircleIcon />}
           onClick={onConfirm}
           sx={{
-            borderRadius: 2,
-            textTransform: "none",
-            px: 3,
+            borderRadius: 8,
+            flex: 2,
+            bgcolor: colors.accent,
+            boxShadow: `0 4px 14px rgba(255,90,95,0.3)`,
           }}
         >
           Confirm Booking

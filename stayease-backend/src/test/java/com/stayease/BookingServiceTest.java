@@ -5,7 +5,6 @@ import com.stayease.booking.repository.BookingRepository;
 import com.stayease.booking.service.BookingService;
 import com.stayease.exception.BadRequestException;
 import com.stayease.hotel.entity.Hotel;
-import com.stayease.hotel.service.HotelService;
 import com.stayease.room.entity.*;
 import com.stayease.room.service.RoomService;
 import com.stayease.user.entity.*;
@@ -24,12 +23,11 @@ class BookingServiceTest {
     @Mock BookingRepository bookingRepository;
     @Mock RoomService roomService;
     @Mock UserService userService;
-    @Mock HotelService hotelService;
     @InjectMocks BookingService bookingService;
 
     @Test void rejectsCheckOutBeforeCheckIn(){
-        var req = new BookingRequest(10L, 1L, 1L, LocalDate.now().plusDays(3), LocalDate.now().plusDays(1));
-        assertThatThrownBy(() -> bookingService.create(req)).isInstanceOf(BadRequestException.class);
+        var req = new BookingRequest(1L, 1L, LocalDate.now().plusDays(3), LocalDate.now().plusDays(1));
+        assertThatThrownBy(() -> bookingService.create(req, 10L)).isInstanceOf(BadRequestException.class);
     }
 
     @Test void createsBookingWithCorrectTotal(){
@@ -42,8 +40,8 @@ class BookingServiceTest {
         when(userService.getById(10L)).thenReturn(u);
         when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
 
-        var req = new BookingRequest(10L, 1L, 1L, LocalDate.now().plusDays(1), LocalDate.now().plusDays(4));
-        var res = bookingService.create(req);
+        var req = new BookingRequest(1L, 1L, LocalDate.now().plusDays(1), LocalDate.now().plusDays(4));
+        var res = bookingService.create(req, 10L);
         assertThat(res.totalPrice()).isEqualByComparingTo("3000");
         assertThat(res.status()).isEqualTo(BookingStatus.CONFIRMED);
     }
@@ -54,7 +52,7 @@ class BookingServiceTest {
                   .roomNumber("101").roomType(RoomType.DOUBLE).isActive(true).build();
         when(roomService.getEntityForUpdate(1L)).thenReturn(r);
 
-        var req = new BookingRequest(10L, 1L, 1L, LocalDate.now().plusDays(1), LocalDate.now().plusDays(4));
-        assertThatThrownBy(() -> bookingService.create(req)).isInstanceOf(BadRequestException.class);
+        var req = new BookingRequest(1L, 1L, LocalDate.now().plusDays(1), LocalDate.now().plusDays(4));
+        assertThatThrownBy(() -> bookingService.create(req, 10L)).isInstanceOf(BadRequestException.class);
     }
 }

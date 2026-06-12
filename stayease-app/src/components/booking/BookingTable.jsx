@@ -1,70 +1,77 @@
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Button,
-  Chip,
+  Table, TableBody, TableCell, TableHead, TableRow,
+  Button, Chip, TableContainer, Typography, Box,
 } from "@mui/material";
 import dayjs from "dayjs";
+import colors from "../../styles/colors";
 
+const statusChipSx = (status) =>
+  status === "CONFIRMED"
+    ? { bgcolor: colors.successLight, color: colors.success, fontWeight: 700 }
+    : { bgcolor: colors.errorLight,   color: colors.error,   fontWeight: 700 };
 
 export default function BookingTable({ bookings, onCancel }) {
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell>Reference</TableCell>
-          <TableCell>Hotel</TableCell>
-          <TableCell>Room</TableCell>
-          <TableCell>Check In</TableCell>
-          <TableCell>Check Out</TableCell>
-          <TableCell>Total</TableCell>
-          <TableCell>Status</TableCell>
-          <TableCell>Action</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {bookings.map((booking) => (
-          <TableRow key={booking.id}>
-            <TableCell>{booking.bookingRef}</TableCell>
-            <TableCell>{booking.hotelName}</TableCell>
-            <TableCell>{booking.roomType}</TableCell>
-            <TableCell>{dayjs(booking.checkInDate).format("DD-MM-YYYY")}</TableCell>
-            <TableCell>{dayjs(booking.checkOutDate).format("DD-MM-YYYY")}</TableCell>
-            <TableCell>₹{booking.totalPrice}</TableCell>
-            <TableCell>
-              <Chip
-                color={booking.status === "CONFIRMED" ? "success" : "error"}
-                label={booking.status}
-              />
-            </TableCell>
-            <TableCell>
-              {booking.status === "CONFIRMED" && (
-                <Button
-                sx={{
-                    backgroundColor: "#d32f2f",
-                    color: "#fff",
-                    fontWeight: 600,
-                    px: 2,
-                    textTransform: "none",
-                    boxShadow: 2,
-                    "&:hover": {
-                      backgroundColor: "#c62828",
-                      boxShadow: 4,
-                    },
-                  }}
-                  color="error"
-                  onClick={() => onCancel(booking.id)}
-                >
-                  Cancel
-                </Button>
-              )}
-            </TableCell>
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            {["Reference", "Hotel", "Room", "Check-In", "Check-Out", "Total", "Status", "Action"].map((h) => (
+              <TableCell key={h}>{h}</TableCell>
+            ))}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {bookings.map((b) => (
+            <TableRow key={b.id}>
+              <TableCell>
+                <Typography
+                  sx={{
+                    fontFamily: "monospace",
+                    fontWeight: 700,
+                    fontSize: "0.8125rem",
+                    bgcolor: colors.accentContainer,
+                    color: colors.accent,
+                    px: 1.25,
+                    py: 0.5,
+                    borderRadius: 1.5,
+                    display: "inline-block",
+                  }}
+                >
+                  {b.bookingRef}
+                </Typography>
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>{b.hotelName}</TableCell>
+              <TableCell>
+                <Chip label={b.roomType} size="small" sx={{ bgcolor: colors.surfaceContainerLow, fontWeight: 500 }} />
+              </TableCell>
+              <TableCell>{dayjs(b.checkInDate).format("DD MMM YYYY")}</TableCell>
+              <TableCell>{dayjs(b.checkOutDate).format("DD MMM YYYY")}</TableCell>
+              <TableCell>
+                <Typography fontWeight={700} sx={{ color: colors.accent }}>
+                  ₹{Number(b.totalPrice).toLocaleString()}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Chip label={b.status} size="small" sx={statusChipSx(b.status)} />
+              </TableCell>
+              <TableCell>
+                {b.status === "CONFIRMED" && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    onClick={() => onCancel(b.id)}
+                    sx={{ borderRadius: 8, fontWeight: 600, fontSize: "0.8125rem" }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 }
