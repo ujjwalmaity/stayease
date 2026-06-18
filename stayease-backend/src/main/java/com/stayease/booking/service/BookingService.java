@@ -4,8 +4,6 @@ import com.stayease.booking.dto.*;
 import com.stayease.booking.entity.*;
 import com.stayease.booking.repository.BookingRepository;
 import com.stayease.exception.*;
-import com.stayease.hotel.entity.Hotel;
-import com.stayease.hotel.service.HotelService;
 import com.stayease.room.entity.Room;
 import com.stayease.room.service.RoomService;
 import com.stayease.user.entity.Role;
@@ -27,10 +25,9 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final RoomService roomService;
     private final UserService userService;
-    private final HotelService hotelService;
 
     @Transactional
-    public BookingResponse create(BookingRequest req) {
+    public BookingResponse create(BookingRequest req, Long userId) {
         LocalDate ci = req.checkInDate(), co = req.checkOutDate();
         if (ci == null || co == null) throw new BadRequestException("Dates required");
         if (!co.isAfter(ci)) throw new BadRequestException("checkOut must be after checkIn");
@@ -46,7 +43,7 @@ public class BookingService {
         long nights = ChronoUnit.DAYS.between(ci, co);
         BigDecimal total = room.getPricePerNight().multiply(BigDecimal.valueOf(nights));
 
-        User u = userService.getById(req.userId());
+        User u = userService.getById(userId);
         Booking b = Booking.builder()
                 .user(u).room(room).checkInDate(ci).checkOutDate(co)
                 .totalPrice(total).status(BookingStatus.CONFIRMED)
@@ -58,17 +55,6 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<BookingResponse> mine(Long userId) {
         return bookingRepository.findByUserIdOrderByCheckInDateDesc(userId)
-                .stream().map(BookingResponse::from).toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<BookingResponse> upcomingForHotel(Long hotelId, Long userId) {
-        User user = userService.getById(userId);
-        Hotel h = hotelService.getEntity(hotelId);
-        if (user.getRole() != Role.ADMIN
-                && (h.getManagerId() == null || !h.getManagerId().equals(user.getId())))
-            throw new ForbiddenException("Not your hotel");
-        return bookingRepository.findUpcomingForHotel(hotelId, LocalDate.now())
                 .stream().map(BookingResponse::from).toList();
     }
 

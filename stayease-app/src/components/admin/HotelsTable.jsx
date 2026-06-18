@@ -1,95 +1,83 @@
 import {
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Button,
+  Table, TableHead, TableBody, TableRow, TableCell,
+  Button, Stack, TableContainer, Typography, Box, Chip,
 } from "@mui/material";
-import Stack from "@mui/material/Stack";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import HotelDialog from "./HotelDialog";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
+import StarIcon from "@mui/icons-material/Star";
+import colors from "../../styles/colors";
 
 export default function HotelsTable({ hotels, onEdit, onDelete }) {
   return (
-    <Table>
-      <TableHead>
-        <TableRow
-          sx={{
-            backgroundColor: "#f5f7fa",
-          }}
-        >
-          <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
-          <TableCell sx={{ fontWeight: 600 }}>City</TableCell>
-          <TableCell sx={{ fontWeight: 600 }}>Stars</TableCell>
-          <TableCell sx={{ fontWeight: 600}}>Description</TableCell>
-          <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {hotels.map((hotel) => (
-          <TableRow
-            key={hotel.id}
-            hover
-            sx={{
-              "&:hover": {
-                backgroundColor: "#fafafa",
-              },
-            }}
-          >
-            <TableCell>{hotel.name}</TableCell>
-            <TableCell>{hotel.city}</TableCell>
-            <TableCell>{hotel.starRating}</TableCell>
-            <TableCell>{hotel.description}</TableCell>
-            <TableCell>
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant="contained"
-                  startIcon={<EditIcon />}
-                  onClick={() => onEdit(hotel)}
-                  sx={{
-                    backgroundColor: "#1976d2",
-                    color: "#fff",
-                    fontWeight: 600,
-                    borderRadius: 28,
-                    px: 2,
-                    textTransform: "none",
-                    boxShadow: 2,
-                    "&:hover": {
-                      backgroundColor: "#1565c0",
-                      boxShadow: 4,
-                    },
-                  }}
-                >
-                  Edit
-                </Button>
-
-                <Button
-                  variant="contained"
-                  startIcon={<DeleteIcon />}
-                  onClick={() => onDelete(hotel.id)}
-                  sx={{
-                    backgroundColor: "#d32f2f",
-                    color: "#fff",
-                    fontWeight: 600,
-                    borderRadius: 28,
-                    px: 2,
-                    textTransform: "none",
-                    boxShadow: 2,
-                    "&:hover": {
-                      backgroundColor: "#c62828",
-                      boxShadow: 4,
-                    },
-                  }}
-                >
-                  Delete
-                </Button>
-              </Stack>
-            </TableCell>
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            {["Name", "City", "Stars", "Description", "Actions"].map((h) => (
+              <TableCell key={h}>{h}</TableCell>
+            ))}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {hotels.map((hotel) => (
+            <TableRow key={hotel.id}>
+              <TableCell sx={{ fontWeight: 700 }}>{hotel.name}</TableCell>
+              <TableCell>
+                <Chip
+                  label={hotel.city}
+                  size="small"
+                  sx={{ bgcolor: colors.accentContainer, color: colors.accent, fontWeight: 500 }}
+                />
+              </TableCell>
+              <TableCell>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  {Array.from({ length: hotel.starRating || 0 }).map((_, i) => (
+                    <StarIcon key={i} sx={{ fontSize: 14, color: colors.accent }} />
+                  ))}
+                  <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
+                    ({hotel.starRating})
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell
+                sx={{
+                  maxWidth: 260,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  color: colors.onSurfaceVariant,
+                  fontSize: "0.875rem",
+                }}
+              >
+                {hotel.description}
+              </TableCell>
+              <TableCell>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<EditOutlinedIcon fontSize="small" />}
+                    onClick={() => onEdit(hotel)}
+                    sx={{ borderRadius: 8, fontWeight: 600, fontSize: "0.8125rem" }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    startIcon={<DeleteOutlineIcon fontSize="small" />}
+                    onClick={() => onDelete(hotel.id)}
+                    sx={{ borderRadius: 8, fontWeight: 600, fontSize: "0.8125rem" }}
+                  >
+                    Delete
+                  </Button>
+                </Stack>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 }

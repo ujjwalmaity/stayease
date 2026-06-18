@@ -1,58 +1,93 @@
 import {
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Button,
-  Switch,
+  Table, TableHead, TableRow, TableCell, TableBody,
+  Button, Stack, Chip, TableContainer, Typography, Box,
 } from "@mui/material";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
+import colors from "../../styles/colors";
 
-export default function RoomsTable({ rooms, onEdit, onDelete, onToggle }) {
+const TYPE_STYLE = {
+  SINGLE: { bg: colors.accentContainer,    color: colors.accent },
+  DOUBLE: { bg: colors.secondaryContainer, color: colors.secondaryDark },
+  SUITE:  { bg: "#FFF8E1",                 color: "#E65100" },
+};
+
+export default function RoomsTable({ rooms, onEdit, onDelete }) {
+  if (rooms.length === 0) {
+    return (
+      <Box sx={{ textAlign: "center", py: 6, color: colors.onSurfaceMuted }}>
+        <Typography variant="body1">No rooms added yet. Click "Add Room" to get started.</Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Table>
-      <TableHead>
-        <TableRow
-          sx={{
-            backgroundColor: "#f5f7fa",
-          }}
-        >
-          <TableCell sx={{ fontWeight: 600 }}>Number</TableCell>
-          <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
-          <TableCell sx={{ fontWeight: 600 }}>Price</TableCell>
-          <TableCell sx={{ fontWeight: 600 }}>Active</TableCell>
-          <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {rooms.map((room) => (
-          <TableRow
-            key={room.id}
-            hover
-            sx={{
-              "&:hover": {
-                backgroundColor: "#fafafa",
-              },
-            }}
-          >
-            <TableCell>{room.roomNumber}</TableCell>
-            <TableCell>{room.roomType}</TableCell>
-            <TableCell>₹{room.pricePerNight}</TableCell>
-            <TableCell>
-              <Switch
-                checked={room.isActive}
-                onChange={() => onToggle(room.id)}
-              />
-            </TableCell>
-            <TableCell>
-              <Button onClick={() => onEdit(room)}>Edit</Button>
-              <Button color="error" onClick={() => onDelete(room.id)}>
-                Delete
-              </Button>
-            </TableCell>
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Hotel</TableCell>
+            <TableCell>Room No.</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>Price / Night</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell sx={{ whiteSpace: "nowrap" }}>Actions</TableCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {rooms.map((room) => {
+            const ts = TYPE_STYLE[room.roomType] || TYPE_STYLE.SINGLE;
+            return (
+              <TableRow key={room.id}>
+                <TableCell sx={{ color: colors.onSurfaceVariant, fontSize: "0.875rem" }}>
+                  {room.hotelName ?? "—"}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 700, color: colors.onBackground }}>{room.roomNumber}</TableCell>
+                <TableCell>
+                  <Chip label={room.roomType} size="small" sx={{ bgcolor: ts.bg, color: ts.color, fontWeight: 600 }} />
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={700} sx={{ color: colors.accent }}>
+                    ₹{Number(room.pricePerNight).toLocaleString()}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={room.isActive ? "Active" : "Inactive"}
+                    size="small"
+                    sx={room.isActive
+                      ? { bgcolor: colors.successLight, color: colors.success, fontWeight: 600 }
+                      : { bgcolor: colors.surfaceContainerHigh, color: colors.onSurfaceVariant, fontWeight: 600 }}
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <Stack direction="row" spacing={1} justifyContent="flex-end">
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<EditOutlinedIcon fontSize="small" />}
+                      onClick={() => onEdit(room)}
+                      sx={{ borderRadius: 8, fontWeight: 600, fontSize: "0.8125rem" }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      startIcon={<DeleteOutlineIcon fontSize="small" />}
+                      onClick={() => onDelete(room.id)}
+                      sx={{ borderRadius: 8, fontWeight: 600, fontSize: "0.8125rem" }}
+                    >
+                      Delete
+                    </Button>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 }

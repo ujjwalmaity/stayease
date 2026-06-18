@@ -1,21 +1,19 @@
 import api from "../api/axios";
 
-export const getAvailableRooms = async (
-  hotelId,
-  checkIn,
-  checkOut,
-) => {
+export const getAvailableRooms = async (hotelId, checkIn, checkOut) => {
   const response = await api.get(`/hotels/${hotelId}/rooms`, {
-    params: {
-      checkIn,
-      checkOut,
-    },
+    params: { checkIn, checkOut },
   });
   return response.data;
 };
 
 export const getManagerRooms = async () => {
   const response = await api.get("/manager/rooms");
+  return response.data;
+};
+
+export const getManagerHotels = async () => {
+  const response = await api.get("/manager/hotels");
   return response.data;
 };
 
@@ -33,7 +31,7 @@ export const deleteRoom = async (roomId) => {
   await api.delete(`/rooms/${roomId}`);
 };
 
-export const toggleRoomStatus = async (roomId) => {
-  const response = await api.patch(`/rooms/${roomId}/status`);
+export const toggleRoomStatus = async (roomId, isActive) => {
+  const response = await api.patch(`/rooms/${roomId}/status`, { isActive });
   return response.data;
 };

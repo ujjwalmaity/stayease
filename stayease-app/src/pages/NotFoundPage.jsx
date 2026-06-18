@@ -1,51 +1,64 @@
-import { Button, Container, Typography, Box } from "@mui/material";
+import { Button, Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import colors from "../styles/colors";
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
-
   return (
-    <Container maxWidth="md">
-      <Box
+    <Box
+      sx={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        gap: 2,
+        py: 4,
+      }}
+    >
+      <Typography
         sx={{
-          minHeight: "80vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          gap: 2,
+          fontSize: { xs: "6rem", md: "10rem" },
+          fontWeight: 900,
+          lineHeight: 1,
+          background: `linear-gradient(135deg, ${colors.accentContainer} 0%, ${colors.accent} 100%)`,
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+          mb: 1,
         }}
       >
-        <Typography
-          variant="h1"
-          sx={{
-            fontWeight: 700,
-            fontSize: { xs: "4rem", md: "6rem" },
-          }}
-        >
-          404
-        </Typography>
-        <Typography variant="h4" fontWeight={600}>
-          Page Not Found
-        </Typography>
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{ maxWidth: 500 }}
-        >
-          The page you are looking for may have been moved, deleted, or the URL
-          might be incorrect.
-        </Typography>
-        <Button
-          variant="contained"
-          size="large"
-          sx={{ mt: 2 }}
-          onClick={() => navigate("/")}
-        >
-          Go to Home
-        </Button>
-      </Box>
-    </Container>
+        404
+      </Typography>
+
+      <Typography variant="h3" sx={{ fontWeight: 800, color: colors.onBackground, mb: 1 }}>
+        Page Not Found
+      </Typography>
+
+      <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 420, lineHeight: 1.7, mb: 2 }}>
+        The page you're looking for may have been moved, deleted, or the URL might be incorrect.
+      </Typography>
+
+      <Button
+        variant="contained"
+        size="large"
+        startIcon={<HomeOutlinedIcon />}
+        onClick={() => navigate("/")}
+        sx={{
+          borderRadius: 2,
+          px: 4,
+          py: 1.5,
+          fontWeight: 700,
+          bgcolor: colors.accent,
+          color: "#fff",
+          boxShadow: "none",
+          "&:hover": { bgcolor: colors.accentDark, boxShadow: "none" },
+        }}
+      >
+        Go to Home
+      </Button>
+    </Box>
   );
 }
