@@ -11,6 +11,7 @@ import colors from "../styles/colors";
 
 export default function AdminHotelsPage() {
   const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
@@ -18,6 +19,7 @@ export default function AdminHotelsPage() {
   const loadHotels = async () => {
     try { setHotels(await getAllHotels()); }
     catch (err) { toast.error(err.message); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => { loadHotels(); }, []);
@@ -47,10 +49,11 @@ export default function AdminHotelsPage() {
           gap: 2,
         }}
       >
-        <Box>
-          <Typography variant="h3" sx={{ fontWeight: 800, mb: 0.5, color: colors.onBackground }}>Hotel Management</Typography>
+        <Box>          <Typography variant="h3" sx={{ fontWeight: 800, mb: 0.5, color: colors.onBackground }}>Hotel Management</Typography>
           <Typography sx={{ color: colors.onSurfaceVariant, fontSize: "0.9375rem" }}>
-            {hotels.length} hotel{hotels.length !== 1 ? "s" : ""} in the directory
+            {loading
+              ? "Loading hotels…"
+              : `${hotels.length} hotel${hotels.length !== 1 ? "s" : ""} in the directory`}
           </Typography>
         </Box>
         <Button
@@ -91,7 +94,7 @@ export default function AdminHotelsPage() {
           <BusinessOutlinedIcon sx={{ color: colors.accent }} />
           <Typography variant="h6">All Hotels</Typography>
         </Box>
-        <HotelsTable hotels={hotels} onEdit={handleEdit} onDelete={(id) => setDeleteId(id)} />
+        <HotelsTable hotels={hotels} onEdit={handleEdit} onDelete={(id) => setDeleteId(id)} loading={loading} />
       </Paper>
 
       <HotelDialog

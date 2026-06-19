@@ -2,10 +2,11 @@ import { Button, Box, Paper, Autocomplete, TextField, CircularProgress } from "@
 import InputAdornment from "@mui/material/InputAdornment";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import SearchIcon from "@mui/icons-material/Search";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import colors from "../../styles/colors";
+import { validateDates } from "../../utils/dateValidation";
 
 const fieldSx = {
   "& .MuiOutlinedInput-root": {
@@ -24,11 +25,25 @@ const NOMINATIM_BASE = "https://nominatim.openstreetmap.org/search";
 export default function SearchForm({ onSearch }) {
   const [city, setCity] = useState("");
   const [cityOptions, setCityOptions] = useState([]);
-  const [cityLoading, setCityLoading] = useState(false);
-  const [checkInDate, setCheckInDate] = useState(null);
+  const [cityLoading, setCityLoading] = useState(false);  const [checkInDate, setCheckInDate] = useState(null);
   const [checkOutDate, setCheckOutDate] = useState(null);
   const [errors, setErrors] = useState({ city: "", checkIn: "", checkOut: "" });
   const debounceRef = useRef(null);
+
+  // Live date validation — recomputed on every change so keyboard-typed
+  // invalid dates (past / reverse-order / same-day) are caught immediately.
+  const dateErrors = useMemo(
+    () => validateDates(checkInDate, checkOutDate),
+    [checkInDate, checkOutDate]
+  );
+
+  // Disable Search when the city is empty or either date is invalid.
+  const searchDisabled = !city.trim() || !!dateErrors.checkIn || !!dateErrors.checkOut;
+
+  // Show value-based errors (past / reverse-order / same-day) live, but only
+  // surface the empty "Required" message after a submit attempt.
+  const checkInError = errors.checkIn || (checkInDate ? dateErrors.checkIn : "");
+  const checkOutError = errors.checkOut || (checkOutDate ? dateErrors.checkOut : "");
 
   const fetchCities = useCallback((query) => {
     if (!query || query.length < 2) { setCityOptions([]); return; }
@@ -67,11 +82,10 @@ export default function SearchForm({ onSearch }) {
   }, []);
 
   const validate = () => {
-    const e = { city: "", checkIn: "", checkOut: "" };
-    let ok = true;
+    const dateErrs = validateDates(checkInDate, checkOutDate);
+    const e = { city: "", checkIn: dateErrs.checkIn, checkOut: dateErrs.checkOut };
+    let ok = !dateErrs.checkIn && !dateErrs.checkOut;
     if (!city.trim()) { e.city = "City is required"; ok = false; }
-    if (!checkInDate) { e.checkIn = "Required"; ok = false; }
-    if (!checkOutDate) { e.checkOut = "Required"; ok = false; }
     setErrors(e);
     return ok;
   };
@@ -169,14 +183,14 @@ export default function SearchForm({ onSearch }) {
             value={checkInDate}
             onChange={(v) => {
               setCheckInDate(v);
-              if (checkOutDate && v && !checkOutDate.isAfter(v)) setCheckOutDate(null);
+              if (checkOutDate && v && v.isValid() && !checkOutDate.isAfter(v)) setCheckOutDate(null);
               if (errors.checkIn) setErrors((p) => ({ ...p, checkIn: "" }));
             }}
             slotProps={{
               textField: {
                 fullWidth: true,
-                error: !!errors.checkIn,
-                helperText: errors.checkIn,
+                error: !!checkInError,
+                helperText: checkInError,
                 sx: fieldSx,
               },
             }}
@@ -184,8 +198,7 @@ export default function SearchForm({ onSearch }) {
         </Box>
 
         {/* ── Check-Out ── */}
-        <Box sx={{ flex: { md: "1 1 0" }, minWidth: 0, width: "100%" }}>
-          <DatePicker
+        <Box sx={{ flex: { md: "1 1 0" }, minWidth: 0, width: "100%" }}>          <DatePicker
             label="Check-Out"
             format="DD MMM YYYY"
             minDate={checkInDate ? checkInDate.add(1, "day") : dayjs().add(1, "day")}
@@ -197,8 +210,8 @@ export default function SearchForm({ onSearch }) {
             slotProps={{
               textField: {
                 fullWidth: true,
-                error: !!errors.checkOut,
-                helperText: errors.checkOut,
+                error: !!checkOutError,
+                helperText: checkOutError,
                 sx: fieldSx,
               },
             }}
@@ -212,6 +225,7 @@ export default function SearchForm({ onSearch }) {
             variant="contained"
             size="large"
             onClick={handleSearch}
+            disabled={searchDisabled}
             startIcon={<SearchIcon />}
             fullWidth
             sx={{
@@ -225,6 +239,7 @@ export default function SearchForm({ onSearch }) {
               whiteSpace: "nowrap",
               boxShadow: "none",
               "&:hover": { bgcolor: colors.accentDark, boxShadow: "none", transform: "none" },
+              "&.Mui-disabled": { bgcolor: colors.outlineVariant, color: "#fff" },
             }}
           >
             Search

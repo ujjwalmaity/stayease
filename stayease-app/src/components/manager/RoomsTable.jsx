@@ -5,6 +5,7 @@ import {
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import colors from "../../styles/colors";
+import TableSkeletonBody from "../common/TableSkeletonBody";
 
 const TYPE_STYLE = {
   SINGLE: { bg: colors.accentContainer,    color: colors.accent },
@@ -12,8 +13,17 @@ const TYPE_STYLE = {
   SUITE:  { bg: "#FFF8E1",                 color: "#E65100" },
 };
 
-export default function RoomsTable({ rooms, onEdit, onDelete }) {
-  if (rooms.length === 0) {
+const SKELETON_COLUMNS = [
+  { width: "65%" },                    // Hotel
+  { width: 60 },                       // Room No.
+  { variant: "rounded", width: 70 },   // Type
+  { width: 70 },                       // Price / Night
+  { variant: "rounded", width: 70 },   // Status
+  { align: "right", variant: "rounded", width: 150 }, // Actions
+];
+
+export default function RoomsTable({ rooms, onEdit, onDelete, loading = false, skeletonRows = 5 }) {
+  if (!loading && rooms.length === 0) {
     return (
       <Box sx={{ textAlign: "center", py: 6, color: colors.onSurfaceMuted }}>
         <Typography variant="body1">No rooms added yet. Click "Add Room" to get started.</Typography>
@@ -34,6 +44,9 @@ export default function RoomsTable({ rooms, onEdit, onDelete }) {
             <TableCell sx={{ whiteSpace: "nowrap" }}>Actions</TableCell>
           </TableRow>
         </TableHead>
+        {loading ? (
+          <TableSkeletonBody columns={SKELETON_COLUMNS} rows={skeletonRows} />
+        ) : (
         <TableBody>
           {rooms.map((room) => {
             const ts = TYPE_STYLE[room.roomType] || TYPE_STYLE.SINGLE;
@@ -87,6 +100,7 @@ export default function RoomsTable({ rooms, onEdit, onDelete }) {
             );
           })}
         </TableBody>
+        )}
       </Table>
     </TableContainer>
   );

@@ -3,9 +3,9 @@ import { useRef, useState, useMemo } from "react";
 import SearchForm from "../components/hotel/SearchForm";
 import HotelGrid from "../components/hotel/HotelGrid";
 import { searchHotels } from "../services/hotelService";
+import { smoothScrollTo } from "../utils/smoothScroll";
 import { toast } from "sonner";
 import colors from "../styles/colors";
-import LocationCityIcon from "@mui/icons-material/LocationCity";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import TrendingDownIcon from "@mui/icons-material/TrendingDown";
@@ -33,15 +33,19 @@ export default function HomePage() {
       setCheckInDate(data.checkInDate || "");
       setCheckOutDate(data.checkOutDate || "");
       const result = await searchHotels(data.city, data.checkInDate, data.checkOutDate);
-      setHotels(result);
-      setSearched(true);
+        setHotels(result);
+        setSearched(true);
       if (result.length === 0) {
         toast.info(`No hotels found in ${data.city} for the selected dates. Try a different city or dates.`);
       } else {
         setTimeout(() => {
-          resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 100);
+          smoothScrollTo(resultsRef.current, { duration: 1300, offset: 80 });
+        }, 150);
       }
+    } catch (err) {
+      setHotels([]);
+      setSearched(false);
+      toast.error(err?.message || "Failed to search hotels. Please try again.");
     } finally {
       setLoading(false);
     }
