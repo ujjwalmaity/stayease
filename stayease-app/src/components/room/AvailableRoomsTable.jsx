@@ -5,6 +5,7 @@ import {
 import KingBedIcon from "@mui/icons-material/KingBed";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import colors from "../../styles/colors";
+import TableSkeletonBody from "../common/TableSkeletonBody";
 
 const ROOM_TYPE_COLOR = {
   SINGLE: { bg: colors.accentContainer, color: colors.accent },
@@ -12,7 +13,15 @@ const ROOM_TYPE_COLOR = {
   SUITE:  { bg: "#FFF8E1", color: "#E65100" },
 };
 
-export default function AvailableRoomsTable({ rooms, onBook, canBook = true }) {
+const SKELETON_COLUMNS = [
+  { variant: "rounded", width: 90 },                  // Room Type
+  { width: 80 },                                      // Price / Night
+  { width: 50 },                                      // Max Guests
+  { width: "80%" },                                   // Description
+  { align: "right", variant: "rounded", width: 96 },  // Action
+];
+
+export default function AvailableRoomsTable({ rooms, onBook, canBook = true, loading = false, skeletonRows = 4 }) {
   return (
     <TableContainer sx={{ borderRadius: 3, border: `1px solid ${colors.outlineVariant}`, overflow: "hidden" }}>
       <Table>
@@ -25,6 +34,9 @@ export default function AvailableRoomsTable({ rooms, onBook, canBook = true }) {
             <TableCell align="right">Action</TableCell>
           </TableRow>
         </TableHead>
+        {loading ? (
+          <TableSkeletonBody columns={SKELETON_COLUMNS} rows={skeletonRows} />
+        ) : (
         <TableBody>
           {rooms.map((room) => {
             const typeStyle = ROOM_TYPE_COLOR[room.roomType] || ROOM_TYPE_COLOR.SINGLE;
@@ -79,6 +91,7 @@ export default function AvailableRoomsTable({ rooms, onBook, canBook = true }) {
             );
           })}
         </TableBody>
+        )}
       </Table>
     </TableContainer>
   );

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Box, Typography, Chip, Stack, Divider,
-  CircularProgress, Alert, Paper, Skeleton,
+  Alert, Paper, Skeleton,
 } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
@@ -90,10 +90,9 @@ export default function HotelDetailPage() {
       toast.error(error.message);
     }
   };
-
   return (
     <Box sx={{ pb: { xs: 3, md: 4 }, pt: { xs: 2, md: 3 } }}>
-      {hotel && (
+      {(hotelLoading || hotel) && (
         <>
           {/* ── Full-bleed hero image ─────────────────────── */}
           <Box
@@ -119,41 +118,45 @@ export default function HotelDetailPage() {
                 sx={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             )}
-            {/* Gradient overlay */}
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                background: "linear-gradient(to top, rgba(15,23,42,0.75) 0%, rgba(15,23,42,0.1) 50%, transparent 100%)",
-              }}
-            />
+            {/* Gradient overlay — only over the real image */}
+            {!hotelLoading && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "linear-gradient(to top, rgba(15,23,42,0.75) 0%, rgba(15,23,42,0.1) 50%, transparent 100%)",
+                }}
+              />
+            )}
             {/* Hotel name on image */}
-            <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, p: { xs: 2.5, md: 4 } }}>
-              <Typography
-                variant="h2"
-                sx={{ color: "#fff", fontWeight: 800, textShadow: "0 2px 8px rgba(0,0,0,0.4)", mb: 1 }}
-              >
-                {hotel.name}
-              </Typography>
-              <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-                <Stack direction="row" alignItems="center" spacing={0.5}>
-                  <LocationOnIcon sx={{ fontSize: 18, color: colors.accentLight }} />
-                  <Typography sx={{ color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>{hotel.city}</Typography>
-                </Stack>
-                <Stack
-                  direction="row" alignItems="center" spacing={0.5}
-                  role="img"
-                  aria-label={`${hotel.starRating}-star hotel`}
+            {!hotelLoading && (
+              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, p: { xs: 2.5, md: 4 } }}>
+                <Typography
+                  variant="h2"
+                  sx={{ color: "#fff", fontWeight: 800, textShadow: "0 2px 8px rgba(0,0,0,0.4)", mb: 1 }}
                 >
-                  {Array.from({ length: hotel.starRating || 0 }).map((_, i) => (
-                    <StarIcon key={i} aria-hidden="true" sx={{ fontSize: 16, color: colors.accent }} />
-                  ))}
-                  <Typography sx={{ color: "rgba(255,255,255,0.85)", fontSize: "0.875rem" }}>
-                    {hotel.starRating}-Star Hotel
-                  </Typography>
+                  {hotel.name}
+                </Typography>
+                <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+                  <Stack direction="row" alignItems="center" spacing={0.5}>
+                    <LocationOnIcon sx={{ fontSize: 18, color: colors.accentLight }} />
+                    <Typography sx={{ color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>{hotel.city}</Typography>
+                  </Stack>
+                  <Stack
+                    direction="row" alignItems="center" spacing={0.5}
+                    role="img"
+                    aria-label={`${hotel.starRating}-star hotel`}
+                  >
+                    {Array.from({ length: hotel.starRating || 0 }).map((_, i) => (
+                      <StarIcon key={i} aria-hidden="true" sx={{ fontSize: 16, color: colors.accent }} />
+                    ))}
+                    <Typography sx={{ color: "rgba(255,255,255,0.85)", fontSize: "0.875rem" }}>
+                      {hotel.starRating}-Star Hotel
+                    </Typography>
+                  </Stack>
                 </Stack>
-              </Stack>
-            </Box>
+              </Box>
+            )}
           </Box>
 
           {/* ── Hotel info card ───────────────────────────── */}
@@ -166,26 +169,42 @@ export default function HotelDetailPage() {
               border: `1px solid ${colors.outlineVariant}`,
             }}
           >
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.8, maxWidth: 800 }}>
-              {hotel.description}
-            </Typography>
-
-            {hotel.amenities?.length > 0 && (
+            {hotelLoading ? (
               <>
-                <Typography variant="overline" sx={{ color: colors.accent, fontWeight: 700, mb: 1.5, display: "block" }}>
-                  Amenities
-                </Typography>
+                <Skeleton variant="text" width="95%" height={20} />
+                <Skeleton variant="text" width="90%" height={20} />
+                <Skeleton variant="text" width="60%" height={20} sx={{ mb: 3 }} />
+                <Skeleton variant="text" width={90} height={16} sx={{ mb: 1.5 }} />
                 <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
-                  {hotel.amenities.map((amenity) => (
-                    <Chip
-                      key={amenity}
-                      label={amenity}
-                      variant="outlined"
-                      size="small"
-                      sx={{ borderColor: colors.secondary, color: colors.secondaryDark, fontWeight: 500 }}
-                    />
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} variant="rounded" width={84} height={28} />
                   ))}
                 </Stack>
+              </>
+            ) : (
+              <>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.8, maxWidth: 800 }}>
+                  {hotel.description}
+                </Typography>
+
+                {hotel.amenities?.length > 0 && (
+                  <>
+                    <Typography variant="overline" sx={{ color: colors.accent, fontWeight: 700, mb: 1.5, display: "block" }}>
+                      Amenities
+                    </Typography>
+                    <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
+                      {hotel.amenities.map((amenity) => (
+                        <Chip
+                          key={amenity}
+                          label={amenity}
+                          variant="outlined"
+                          size="small"
+                          sx={{ borderColor: colors.secondary, color: colors.secondaryDark, fontWeight: 500 }}
+                        />
+                      ))}
+                    </Stack>
+                  </>
+                )}
               </>
             )}
           </Paper>
@@ -224,14 +243,16 @@ export default function HotelDetailPage() {
         />
 
         {loading && (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-            <CircularProgress size={36} />
-          </Box>
+          <>
+            <Divider sx={{ my: 3 }} />
+            <Skeleton variant="text" width={160} height={18} sx={{ mb: 2 }} />
+            <AvailableRoomsTable loading />
+          </>
         )}
         {!loading && searched && rooms.length === 0 && (
           <Alert severity="info" sx={{ borderRadius: 2, mt: 1 }}>No rooms available for those dates.</Alert>
         )}
-        {rooms.length > 0 && (
+        {!loading && rooms.length > 0 && (
           <>
             <Divider sx={{ my: 3 }} />
             <Typography variant="overline" sx={{ color: colors.accent, fontWeight: 700, mb: 2, display: "block" }}>

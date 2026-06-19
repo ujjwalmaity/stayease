@@ -1,17 +1,27 @@
 import {
   Box, Typography, Table, TableHead, TableBody,
-  TableRow, TableCell, Chip, Alert, TableContainer,
+  TableRow, TableCell, Chip, Alert, TableContainer, Skeleton,
 } from "@mui/material";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import dayjs from "dayjs";
 import colors from "../../styles/colors";
+import TableSkeletonBody from "../common/TableSkeletonBody";
 
-export default function UpcomingBookings({ bookings }) {
+const SKELETON_COLUMNS = [
+  { variant: "rounded", width: 90 },  // Reference
+  { width: "70%" },                   // Guest
+  { variant: "rounded", width: 70 },  // Room
+  { width: 90 },                      // Check-In
+  { width: 90 },                      // Check-Out
+  { variant: "rounded", width: 80 },  // Status
+];
+
+export default function UpcomingBookings({ bookings = [], loading = false, skeletonRows = 4 }) {
   const upcomingBookings = bookings.filter(
     (b) => new Date(b.checkInDate) >= new Date()
   );
 
-  if (upcomingBookings.length === 0) {
+  if (!loading && upcomingBookings.length === 0) {
     return <Alert severity="info" sx={{ borderRadius: 2 }}>No upcoming bookings found.</Alert>;
   }
 
@@ -22,10 +32,14 @@ export default function UpcomingBookings({ bookings }) {
           <EventAvailableIcon sx={{ color: colors.accent, fontSize: 20 }} />
           <Typography variant="h6" fontWeight={700}>Upcoming Reservations</Typography>
         </Box>
-        <Chip
-          label={`${upcomingBookings.length} Booking${upcomingBookings.length > 1 ? "s" : ""}`}
-          sx={{ bgcolor: colors.accentContainer, color: colors.accent, fontWeight: 700 }}
-        />
+        {loading ? (
+          <Skeleton variant="rounded" width={96} height={32} />
+        ) : (
+          <Chip
+            label={`${upcomingBookings.length} Booking${upcomingBookings.length > 1 ? "s" : ""}`}
+            sx={{ bgcolor: colors.accentContainer, color: colors.accent, fontWeight: 700 }}
+          />
+        )}
       </Box>
 
       <TableContainer sx={{ borderRadius: 2, border: `1px solid ${colors.outlineVariant}` }}>
@@ -37,6 +51,9 @@ export default function UpcomingBookings({ bookings }) {
               ))}
             </TableRow>
           </TableHead>
+          {loading ? (
+            <TableSkeletonBody columns={SKELETON_COLUMNS} rows={skeletonRows} />
+          ) : (
           <TableBody>
             {upcomingBookings.map((b) => (
               <TableRow key={b.bookingId ?? b.id}>
@@ -61,6 +78,7 @@ export default function UpcomingBookings({ bookings }) {
               </TableRow>
             ))}
           </TableBody>
+          )}
         </Table>
       </TableContainer>
     </>

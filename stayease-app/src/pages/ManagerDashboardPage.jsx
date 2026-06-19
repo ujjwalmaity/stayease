@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Typography, CircularProgress, Paper, Button, Box, Grid } from "@mui/material";
+import { Typography, Skeleton, Paper, Button, Box, Grid } from "@mui/material";
 import { toast } from "sonner";
 import { getUpcomingBookings } from "../services/managerService";
 import { getManagerRooms, getManagerHotels, createRoom, updateRoom, deleteRoom, toggleRoomStatus } from "../services/roomService";
@@ -13,7 +13,7 @@ import EventNoteOutlinedIcon from "@mui/icons-material/EventNoteOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutlined";
 import colors from "../styles/colors";
 
-const StatCard = ({ icon, label, value, color }) => (
+const StatCard = ({ icon, label, value, color, loading = false }) => (
   <Paper
     sx={{
       p: 3,
@@ -35,7 +35,11 @@ const StatCard = ({ icon, label, value, color }) => (
       {icon}
     </Box>
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 800, color, lineHeight: 1.1 }}>{value}</Typography>
+      {loading ? (
+        <Skeleton variant="text" width={40} height={40} />
+      ) : (
+        <Typography variant="h4" sx={{ fontWeight: 800, color, lineHeight: 1.1 }}>{value}</Typography>
+      )}
       <Typography variant="body2" color="text.secondary" fontWeight={500}>{label}</Typography>
     </Box>
   </Paper>
@@ -95,14 +99,6 @@ export default function ManagerDashboardPage() {
     } catch (err) { toast.error(err.message); }
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <CircularProgress size={48} thickness={4} />
-      </Box>
-    );
-  }
-
   const activeRooms = rooms.filter((r) => r.isActive).length;
   const upcomingCount = bookings.filter((b) => new Date(b.checkInDate) >= new Date()).length;
 
@@ -133,6 +129,7 @@ export default function ManagerDashboardPage() {
             label="Total Rooms"
             value={rooms.length}
             color={colors.accent}
+            loading={loading}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
@@ -141,6 +138,7 @@ export default function ManagerDashboardPage() {
             label="Active Rooms"
             value={activeRooms}
             color={colors.success}
+            loading={loading}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
@@ -149,6 +147,7 @@ export default function ManagerDashboardPage() {
             label="Upcoming Bookings"
             value={upcomingCount}
             color={colors.secondary}
+            loading={loading}
           />
         </Grid>
       </Grid>
@@ -172,6 +171,7 @@ export default function ManagerDashboardPage() {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleCreate}
+              disabled={loading}
               sx={{
                 borderRadius: 8,
                 bgcolor: colors.accent,
@@ -183,7 +183,7 @@ export default function ManagerDashboardPage() {
               Add Room
             </Button>
           </Box>
-          <RoomsTable rooms={rooms} onEdit={handleEdit} onDelete={(id) => setDeleteRoomId(id)} onToggle={handleToggle} />
+          <RoomsTable rooms={rooms} onEdit={handleEdit} onDelete={(id) => setDeleteRoomId(id)} onToggle={handleToggle} loading={loading} />
         </Paper>
       )}
 
@@ -199,9 +199,8 @@ export default function ManagerDashboardPage() {
         >
           <EventNoteOutlinedIcon sx={{ color: colors.secondary }} />
           <Typography variant="h6">Upcoming Bookings</Typography>
-        </Box>
-        <Box sx={{ p: 3 }}>
-          <UpcomingBookings bookings={bookings} />
+        </Box>        <Box sx={{ p: 3 }}>
+          <UpcomingBookings bookings={bookings} loading={loading} />
         </Box>
       </Paper>
 

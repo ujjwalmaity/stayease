@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Typography, CircularProgress, Box, Paper, Button } from "@mui/material";
+import { Typography, Box, Paper, Button } from "@mui/material";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { getMyBookings, cancelBooking } from "../services/bookingService";
@@ -22,7 +22,6 @@ export default function MyStaysPage() {
   };
 
   useEffect(() => { loadBookings(); }, []);
-
   const handleCancel = async (bookingId) => {
     try {
       await cancelBooking(bookingId);
@@ -32,14 +31,6 @@ export default function MyStaysPage() {
       toast.error(error.message);
     }
   };
-
-  if (loading) {
-    return (
-      <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <CircularProgress size={48} thickness={4} />
-      </Box>
-    );
-  }
 
   return (
     <Box sx={{ pb: { xs: 3, md: 4 }, pt: { xs: 2, md: 3 } }}>
@@ -56,13 +47,26 @@ export default function MyStaysPage() {
       >
         <Typography variant="h3" sx={{ color: colors.onBackground, fontWeight: 800, mb: 0.5 }}>My Stays</Typography>
         <Typography sx={{ color: colors.onSurfaceVariant, fontSize: "0.9375rem" }}>
-          {bookings.length > 0
-            ? `You have ${bookings.length} booking${bookings.length > 1 ? "s" : ""}`
-            : "Manage all your hotel bookings"}
+          {loading
+            ? "Loading your bookings…"
+            : bookings.length > 0
+              ? `You have ${bookings.length} booking${bookings.length > 1 ? "s" : ""}`
+              : "Manage all your hotel bookings"}
         </Typography>
       </Box>
 
-      {bookings.length === 0 ? (
+      {loading ? (
+        <Paper
+          sx={{
+            borderRadius: 3,
+            overflow: "hidden",
+            border: `1px solid ${colors.outlineVariant}`,
+            boxShadow: colors.shadowSm,
+          }}
+        >
+          <BookingTable loading />
+        </Paper>
+      ) : bookings.length === 0 ? (
         <Box
           sx={{
             display: "flex",

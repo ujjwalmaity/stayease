@@ -1,16 +1,28 @@
 import {
   Table, TableBody, TableCell, TableHead, TableRow,
-  Button, Chip, TableContainer, Typography, Box,
+  Button, Chip, TableContainer, Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
 import colors from "../../styles/colors";
+import TableSkeletonBody from "../common/TableSkeletonBody";
 
 const statusChipSx = (status) =>
   status === "CONFIRMED"
     ? { bgcolor: colors.successLight, color: colors.success, fontWeight: 700 }
     : { bgcolor: colors.errorLight,   color: colors.error,   fontWeight: 700 };
 
-export default function BookingTable({ bookings, onCancel }) {
+const SKELETON_COLUMNS = [
+  { variant: "rounded", width: 90 },  // Reference
+  { width: "70%" },                   // Hotel
+  { variant: "rounded", width: 70 },  // Room
+  { width: 90 },                      // Check-In
+  { width: 90 },                      // Check-Out
+  { width: 70 },                      // Total
+  { variant: "rounded", width: 80 },  // Status
+  { variant: "rounded", width: 72 },  // Action
+];
+
+export default function BookingTable({ bookings, onCancel, loading = false, skeletonRows = 5 }) {
   return (
     <TableContainer>
       <Table>
@@ -21,6 +33,9 @@ export default function BookingTable({ bookings, onCancel }) {
             ))}
           </TableRow>
         </TableHead>
+        {loading ? (
+          <TableSkeletonBody columns={SKELETON_COLUMNS} rows={skeletonRows} />
+        ) : (
         <TableBody>
           {bookings.map((b) => (
             <TableRow key={b.id}>
@@ -71,6 +86,7 @@ export default function BookingTable({ bookings, onCancel }) {
             </TableRow>
           ))}
         </TableBody>
+        )}
       </Table>
     </TableContainer>
   );

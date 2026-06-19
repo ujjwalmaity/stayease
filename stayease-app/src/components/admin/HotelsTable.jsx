@@ -6,8 +6,17 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import StarIcon from "@mui/icons-material/Star";
 import colors from "../../styles/colors";
+import TableSkeletonBody from "../common/TableSkeletonBody";
 
-export default function HotelsTable({ hotels, onEdit, onDelete }) {
+const SKELETON_COLUMNS = [
+  { width: "70%" },                                   // Name
+  { variant: "rounded", width: 80 },                  // City
+  { width: 80 },                                      // Stars
+  { width: "85%" },                                   // Description
+  { variant: "rounded", width: 150 },                 // Actions
+];
+
+export default function HotelsTable({ hotels, onEdit, onDelete, loading = false, skeletonRows = 5 }) {
   return (
     <TableContainer>
       <Table>
@@ -18,6 +27,9 @@ export default function HotelsTable({ hotels, onEdit, onDelete }) {
             ))}
           </TableRow>
         </TableHead>
+        {loading ? (
+          <TableSkeletonBody columns={SKELETON_COLUMNS} rows={skeletonRows} />
+        ) : (
         <TableBody>
           {hotels.map((hotel) => (
             <TableRow key={hotel.id}>
@@ -77,6 +89,7 @@ export default function HotelsTable({ hotels, onEdit, onDelete }) {
             </TableRow>
           ))}
         </TableBody>
+        )}
       </Table>
     </TableContainer>
   );
